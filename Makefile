@@ -86,3 +86,19 @@ clean:
 include $(PS2SDK)/Defs.make
 
 EE_CFLAGS := -Dmemset=mips_memset -Dmemcpy=mips_memcpy -D_EE -O2 -G8192 -mgpopt -Wall -mno-check-zero-division
+
+DOCKER_IMAGE := ps2dev-v1.0
+DOCKER_RUN   := docker run --rm -v "$(PWD):/src" -w /src $(DOCKER_IMAGE)
+
+docker: docker-rebuild
+
+docker-build:
+	$(DOCKER_RUN) make
+
+docker-rebuild: clean docker-build
+
+build-docker-image:
+	docker build -t $(DOCKER_IMAGE) .
+
+docker-shell:
+	docker $(DOCKER_RUN) bash
