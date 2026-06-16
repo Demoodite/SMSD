@@ -1,5 +1,8 @@
 .SILENT:
 
+include .env
+export
+
 EE_OBJ_DIR = obj/
 EE_INC_DIR = include/
 EE_BIN_DIR = bin/
@@ -87,8 +90,8 @@ include $(PS2SDK)/Defs.make
 
 EE_CFLAGS := -Dmemset=mips_memset -Dmemcpy=mips_memcpy -D_EE -O2 -G8192 -mgpopt -Wall -mno-check-zero-division
 
-DOCKER_IMAGE := ps2dev-v1.0
-DOCKER_RUN   := docker run --rm -v "$(PWD):/src" -w /src $(DOCKER_IMAGE)
+DOCKER_RUN="docker run --rm -v "$(PWD):/src" -w /src $(DOCKER_IMAGE)"
+DOCKER_SRC_DIR="/src"
 
 docker: docker-rebuild
 
@@ -101,4 +104,24 @@ build-docker-image:
 	docker build -t $(DOCKER_IMAGE) .
 
 docker-shell:
-	docker $(DOCKER_RUN) bash
+	docker run -it --rm -v "$(PWD):$(DOCKER_SRC_DIR)" -w /src $(DOCKER_IMAGE) sh
+
+docker-dev-start:
+	docker run -d --restart unless-stopped \
+		--name $(DOCKER_CONTAINER) \
+		-v ps2dev-sdk:/usr/local/ps2dev \
+		-v $(PWD):$(DOCKER_SRC_DIR) \
+		-w /src \
+		$(DOCKER_IMAGE) tail -f /dev/null
+	mkdir -p ./ps2dev-sdk
+	sudo mount --bind /var/lib/docker/volumes/ps2dev-sdk/_data $(PWD)/ps2dev-sdk
+
+docker-dev-stop:
+	docker rm -f $(DOCKER_CONTAINER)
+
+docker-gen-compile-commands:
+	docker exec $(DOCKER_CONTAINER) sh -c \
+		"cd $(DOCKER_SRC_DIR) && bear -- make -B all"
+
+docker-clean-compile-commands:
+	rm -f compile_commands.json

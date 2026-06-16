@@ -1,0 +1,12 @@
+--target=mipsel-none-elf
+-I/opt/ps2dev/ps2sdk/ee/include
+-I/opt/ps2dev/ps2sdk/common/include
+-I/opt/ps2dev/ee/mipsel-none-elf/include
+-I/opt/ps2dev/gsKit/include
+-Dmemset=mips_memset/g-Dmemcpy=mips_memcpy
+-D_EE
+-O2
+-G8192
+-mgpopt
+-Wall
+-mno-check-zero-division

@@ -32,3 +32,5 @@ docs/stylesheets/html-single.xsl
 docs/stylesheets/profile.xsl
 docs/xsltproc.sh
 docs/xmllint.sh
+/compile_commands.json
+/ps2dev-sdk
